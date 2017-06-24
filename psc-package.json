@@ -1,0 +1,9 @@
+{
+    "name": "try-purescript-canvas",
+    "set": "master",
+    "source": "https://github.com/purescript/package-sets.git",
+    "depends": [
+        "psci-support",
+        "prelude"
+    ]
+}
