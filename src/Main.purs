@@ -1,11 +1,9 @@
 module Main where
 
-import Prelude (Unit, unit, bind, discard, ($), (>>=), pure, when, (<<<), (>>>))
+import Prelude (Unit, unit, bind, discard, (>>=), pure, (<<<))
 import Data.Maybe
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
-
-import Partial.Unsafe (unsafePartial)
 
 import Graphics.Canvas (CANVAS)
 import Graphics.Canvas as C
