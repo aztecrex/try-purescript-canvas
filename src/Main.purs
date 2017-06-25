@@ -1,6 +1,7 @@
 module Main where
 
 import Prelude (Unit, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
+import Data.Monoid (mempty)
 import Data.Maybe
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
@@ -21,10 +22,23 @@ shipShape = D.closed [
     {x:  (-20.0), y: (-15.0)}
   ]
 
-shipDrawing :: D.Drawing
-shipDrawing = D.outlined
-    (D.outlineColor D.black <> D.lineWidth 1.0)
-    shipShape
+trailShape :: D.Shape
+trailShape = D.closed [
+    {x: -30.0, y:  0.0},
+    {x: -20.0, y:  5.0},
+    {x: -20.0, y: -5.0}
+  ]
+
+shipDrawing :: Boolean -> D.Drawing
+shipDrawing powered = body <> if powered then tail else mempty
+      where
+        body = D.outlined
+              (D.outlineColor D.black <> D.lineWidth 1.0)
+              shipShape
+        tail = D.filled
+              (D.fillColor D.black)
+              trailShape
+
 
 -- render :: ∀ eff. C.Context2D -> Model -> Eff (canvas :: CANVAS | eff) C.Context2D
 -- render ctx model = do
@@ -33,7 +47,7 @@ shipDrawing = D.outlined
 scene :: ∀ eff. Viewport -> Eff (canvas :: CANVAS | eff) Unit
 scene (Viewport context width height) = do
   ctx2 <- C.translate {translateX: width / 2.0, translateY: height / 2.0} context
-  D.render ctx2 shipDrawing
+  D.render ctx2 $ shipDrawing true
 
 viewport :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) (Maybe Viewport)
 viewport  = do
