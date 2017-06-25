@@ -3,6 +3,8 @@
     "set": "master",
     "source": "https://github.com/purescript/package-sets.git",
     "depends": [
+        "dom",
+        "signal",
         "drawing",
         "canvas",
         "psci-support",
