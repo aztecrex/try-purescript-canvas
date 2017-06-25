@@ -27,9 +27,5 @@ main = do
   maybeContext <- viewport
   case maybeContext of
       Just context -> void $ scene context
-      _ -> log "No canvas with id 'viewport'"
-  --
-  -- Just canvas <- C.getCanvasElementById "viewport"  -- bad, fix
-  -- ctx <- C.getContext2D canvas
-  -- _ <- scene ctx
+      _ -> log "Cannot retrieve viewport canvas from document"
   log "Done"
