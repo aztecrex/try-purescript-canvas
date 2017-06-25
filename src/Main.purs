@@ -92,10 +92,11 @@ viewport  = do
 
 main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS, dom :: DOM | eff) Unit
 main = do
-  space <- keyPressed 32
+  up <- keyPressed 38
+  let changeUp = dropRepeats up
   maybeViewport <- viewport
   case maybeViewport of
-      Just viewport -> runSignal $ model (dropRepeats space) ~> render viewport
+      Just viewport -> runSignal $ model changeUp ~> render viewport
       _ -> log "Cannot retrieve viewport canvas from document"
   log "Done"
-  runSignal $ model (dropRepeats space) ~> logShow
+  runSignal $ model changeUp ~> logShow
