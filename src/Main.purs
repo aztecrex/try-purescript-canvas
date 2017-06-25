@@ -1,6 +1,6 @@
 module Main where
 
-import Prelude (Unit, bind, discard, (>>=), pure, (<<<), ($), void)
+import Prelude (Unit, bind, discard, (>>=), pure, (<<<), ($), void, const)
 import Data.Maybe
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
@@ -20,7 +20,7 @@ viewport  = do
   maybeCanvas <- C.getCanvasElementById "viewport"
   case maybeCanvas of
     Just canvas -> C.getContext2D canvas >>= (pure <<< Just)
-    _ -> pure Nothing
+    _ -> log "no canvas 'viewport'" >>= (const $ pure Nothing)
 
 main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) Unit
 main = do
