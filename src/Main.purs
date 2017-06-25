@@ -1,25 +1,50 @@
 module Main where
 
-import Prelude (Unit, bind, discard, (>>=), pure, (<<<), ($), void, const)
+import Prelude (Unit, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
 import Data.Maybe
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 
 import Graphics.Canvas (CANVAS)
 import Graphics.Canvas as C
--- import Graphics.Drawing as D
+import Graphics.Drawing as D
 
-scene :: ∀ eff. C.Context2D -> Eff (canvas :: CANVAS | eff) C.Context2D
-scene ctx = do
-  ctx2 <- C.moveTo ctx 100.0 0.0
-  ctx3 <- C.lineTo ctx2 0.0 100.0
-  C.stroke ctx3
 
-viewport :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) (Maybe C.Context2D)
+data Viewport = Viewport C.Context2D Number Number
+
+data Model = Ship Number
+
+shipShape :: D.Shape
+shipShape = D.closed [
+    {x: 20.0, y:  0.0},
+    {x:  (-20.0), y: 15.0},
+    {x:  (-20.0), y: (-15.0)}
+  ]
+
+shipDrawing :: D.Drawing
+shipDrawing = D.outlined
+    (D.outlineColor D.black <> D.lineWidth 1.0)
+    shipShape
+
+-- render :: ∀ eff. C.Context2D -> Model -> Eff (canvas :: CANVAS | eff) C.Context2D
+-- render ctx model = do
+--   let shape =
+
+scene :: ∀ eff. Viewport -> Eff (canvas :: CANVAS | eff) Unit
+scene (Viewport context width height) = do
+  ctx2 <- C.translate {translateX: width / 2.0, translateY: height / 2.0} context
+  D.render ctx2 shipDrawing
+
+viewport :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) (Maybe Viewport)
 viewport  = do
   maybeCanvas <- C.getCanvasElementById "viewport"
   case maybeCanvas of
-    Just canvas -> C.getContext2D canvas >>= (pure <<< Just)
+    Just canvas -> do
+      context <- C.getContext2D canvas
+      width <- C.getCanvasWidth canvas
+      height <- C.getCanvasHeight canvas
+      pure $ Just $ Viewport context width height
+      -- C.getContext2D canvas >>= (pure <<< Just)
     _ -> log "no canvas 'viewport'" >>= (const $ pure Nothing)
 
 main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) Unit
