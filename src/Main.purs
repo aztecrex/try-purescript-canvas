@@ -69,8 +69,8 @@ clearViewport (Viewport context w h) = do
 
 
 render :: ∀ eff. Viewport -> Model -> Eff (canvas :: CANVAS | eff) Unit
-render viewport@(Viewport context width height) (Ship powered _) = C.withContext context $ do
-  void $ clearViewport viewport
+render vp@(Viewport context width height) (Ship powered _) = C.withContext context $ do
+  void $ clearViewport vp
   void $ C.translate {translateX: width / 2.0, translateY: height / 2.0} context
   D.render context $ shipDrawing powered
 
@@ -96,7 +96,7 @@ main = do
   let changeUp = dropRepeats up
   maybeViewport <- viewport
   case maybeViewport of
-      Just viewport -> runSignal $ model changeUp ~> render viewport
+      Just vp -> runSignal $ model changeUp ~> render vp
       _ -> log "Cannot retrieve viewport canvas from document"
   log "Done"
   runSignal $ model changeUp ~> logShow
