@@ -1,6 +1,6 @@
 module Main where
 
-import Prelude (Unit, unit, bind, discard, (>>=), pure, (<<<))
+import Prelude (Unit, unit, bind, discard, (>>=), pure, (<<<), ($), void)
 import Data.Maybe
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
@@ -9,12 +9,11 @@ import Graphics.Canvas (CANVAS)
 import Graphics.Canvas as C
 -- import Graphics.Drawing as D
 
-scene :: ∀ eff. C.Context2D -> Eff (canvas :: CANVAS | eff) Unit
+scene :: ∀ eff. C.Context2D -> Eff (canvas :: CANVAS | eff) C.Context2D
 scene ctx = do
   ctx2 <- C.moveTo ctx 100.0 0.0
   ctx3 <- C.lineTo ctx2 0.0 100.0
-  _ <- C.stroke ctx3
-  pure unit
+  C.stroke ctx3
 
 viewport :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) (Maybe C.Context2D)
 viewport  = do
@@ -27,7 +26,7 @@ main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) Unit
 main = do
   maybeContext <- viewport
   case maybeContext of
-      Just context -> scene context
+      Just context -> void $ scene context
       _ -> log "No canvas with id 'viewport'"
   --
   -- Just canvas <- C.getCanvasElementById "viewport"  -- bad, fix
