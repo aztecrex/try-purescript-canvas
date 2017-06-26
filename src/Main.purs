@@ -94,11 +94,7 @@ instance showControl :: Show Control where
     " u:" <> show up <>
     " r:" <> show right
 
-instance eqControl :: Eq Control where
-  eq (Control a b c) (Control a' b' c') =
-      eq a a' &&
-      eq b b' &&
-      eq c c'
+derive instance eqControl :: Eq Control
 
 logDir :: ∀ eff. String -> Boolean -> Eff (console :: CONSOLE | eff) Unit
 logDir s b = log $ s <> " " <> show b
