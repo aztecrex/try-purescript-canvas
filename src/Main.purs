@@ -1,6 +1,6 @@
 module Main where
 
-import Prelude (Unit, class Show, (&&), (<$>), (<*>), map, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
+import Prelude (Unit, class Show, (<<<), (&&), (<$>), (<*>), map, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
 import Data.Monoid (mempty)
 import Data.Maybe
 import Data.Eq (class Eq, eq)
@@ -75,17 +75,15 @@ render vp@(Viewport context width height) (Ship powered _) = C.withContext conte
   void $ C.translate {translateX: width / 2.0, translateY: height / 2.0} context
   D.render context $ shipDrawing powered
 
-
 viewport :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS | eff) (Maybe Viewport)
 viewport  = do
   maybeCanvas <- C.getCanvasElementById "viewport"
   case maybeCanvas of
-    Just canvas -> do
-      context <- C.getContext2D canvas
-      width <- C.getCanvasWidth canvas
-      height <- C.getCanvasHeight canvas
-      pure $ Just $ Viewport context width height
-      -- C.getContext2D canvas >>= (pure <<< Just)
+    Just canvas -> Just <$>
+         (Viewport <$>
+          C.getContext2D canvas <*>
+          C.getCanvasWidth canvas <*>
+          C.getCanvasHeight canvas)
     _ -> log "no canvas 'viewport'" >>= (const $ pure Nothing)
 
 instance showControl :: Show Control where
