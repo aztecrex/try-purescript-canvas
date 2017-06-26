@@ -1,6 +1,6 @@
 module Main where
 
-import Prelude (Unit, class Show, (<<<), (&&), (<$>), (<*>), map, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
+import Prelude (Unit, class Show, (*>), (<<<), (&&), (<$>), (<*>), map, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
 import Data.Monoid (mempty)
 import Data.Maybe
 import Data.Eq (class Eq, eq)
@@ -84,7 +84,7 @@ viewport  = do
           C.getContext2D canvas <*>
           C.getCanvasWidth canvas <*>
           C.getCanvasHeight canvas)
-    _ -> log "no canvas 'viewport'" >>= (const $ pure Nothing)
+    _ -> log "no canvas 'viewport'" *> pure Nothing
 
 instance showControl :: Show Control where
   show (Control left up right) =
