@@ -63,7 +63,7 @@ module.exports = {
               src: [
                 path.join('src', '**', '*.purs')
               ],
-              bundle: true,
+              bundle: !(isWebpackDevServer || isWatch),
               watch: isWebpackDevServer || isWatch,
               pscIde: false
             }
