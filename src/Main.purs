@@ -1,8 +1,9 @@
 module Main where
 
-import Prelude (Unit, class Show, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
+import Prelude (Unit, class Show, (&&), (<$>), (<*>), map, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
 import Data.Monoid (mempty)
 import Data.Maybe
+import Data.Eq (class Eq, eq)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log, logShow)
 
@@ -12,12 +13,14 @@ import Graphics.Drawing as D
 
 import DOM (DOM)
 
-import Signal(Signal, (~>), runSignal, dropRepeats, foldp)
+import Signal(Signal, (~>), runSignal, dropRepeats, dropRepeats', foldp, map3)
 import Signal.DOM (keyPressed)
 
 data Viewport = Viewport C.Context2D Number Number
 
 data Model = Ship Boolean Number
+
+data Control = Control Boolean Boolean Boolean
 
 instance showModel :: Show Model where
   show (Ship powered rotation) =
@@ -25,10 +28,10 @@ instance showModel :: Show Model where
     show rotation <>
     if powered then " powered" else ""
 
-modelLogic :: Boolean -> Model -> Model
-modelLogic power (Ship _ rot) = Ship power rot
+modelLogic :: Control -> Model -> Model
+modelLogic (Control _ up _) (Ship _ rot) = Ship up rot
 
-model :: Signal Boolean -> Signal Model
+model :: Signal Control -> Signal Model
 model input = foldp modelLogic (Ship false 0.0) input
 
 shipShape :: D.Shape
@@ -66,8 +69,6 @@ clearViewport (Viewport context w h) = do
   void $ C.setFillStyle "#FFFFFF" context
   void $ C.fillRect context {x: 0.0, y: 0.0, w, h}
 
-
-
 render :: ∀ eff. Viewport -> Model -> Eff (canvas :: CANVAS | eff) Unit
 render vp@(Viewport context width height) (Ship powered _) = C.withContext context $ do
   void $ clearViewport vp
@@ -87,16 +88,30 @@ viewport  = do
       -- C.getContext2D canvas >>= (pure <<< Just)
     _ -> log "no canvas 'viewport'" >>= (const $ pure Nothing)
 
+instance showControl :: Show Control where
+  show (Control left up right) =
+    "l: " <> show left <>
+    " u:" <> show up <>
+    " r:" <> show right
 
+instance eqControl :: Eq Control where
+  eq (Control a b c) (Control a' b' c') =
+      eq a a' &&
+      eq b b' &&
+      eq c c'
 
+logDir :: ∀ eff. String -> Boolean -> Eff (console :: CONSOLE | eff) Unit
+logDir s b = log $ s <> " " <> show b
 
 main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS, dom :: DOM | eff) Unit
 main = do
   up <- keyPressed 38
-  let changeUp = dropRepeats up
+  left <- keyPressed 37
+  right <- keyPressed 39
+  let all = dropRepeats (Control <$> left <*> up <*> right)
+  let ship = model all
   maybeViewport <- viewport
   case maybeViewport of
-      Just vp -> runSignal $ model changeUp ~> render vp
+      Just vp -> runSignal $ map (render vp) ship
       _ -> log "Cannot retrieve viewport canvas from document"
   log "Done"
-  runSignal $ model changeUp ~> logShow
