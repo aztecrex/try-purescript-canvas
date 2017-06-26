@@ -1,11 +1,12 @@
 module Main where
 
-import Prelude (Unit, class Show, (*>), (<<<), (&&), (<$>), (<*>), map, show, negate, bind, discard, (/), (<>), (>>=), pure, ($), void, const)
+import Prelude (Unit, class Show, (*>), (<$>), (<*>), map, show, negate, bind,
+                  discard, (/), (<>), pure, ($), void)
 import Data.Monoid (mempty)
 import Data.Maybe
-import Data.Eq (class Eq, eq)
+import Data.Eq (class Eq)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log, logShow)
+import Control.Monad.Eff.Console (CONSOLE, log)
 
 import Graphics.Canvas (CANVAS)
 import Graphics.Canvas as C
@@ -13,7 +14,7 @@ import Graphics.Drawing as D
 
 import DOM (DOM)
 
-import Signal(Signal, (~>), runSignal, dropRepeats, dropRepeats', foldp, map3)
+import Signal(Signal, runSignal, dropRepeats, foldp)
 import Signal.DOM (keyPressed)
 
 data Viewport = Viewport C.Context2D Number Number
