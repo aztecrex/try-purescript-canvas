@@ -98,13 +98,17 @@ derive instance eqControl :: Eq Control
 logDir :: ∀ eff. String -> Boolean -> Eff (console :: CONSOLE | eff) Unit
 logDir s b = log $ s <> " " <> show b
 
-main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS, dom :: DOM | eff) Unit
-main = do
+controls :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS, dom :: DOM | eff)
+            (Signal Control)
+controls = do
   up <- keyPressed 38
   left <- keyPressed 37
   right <- keyPressed 39
-  let all = dropRepeats (Control <$> left <*> up <*> right)
-  let ship = model all
+  pure $ dropRepeats (Control <$> left <*> up <*> right)
+
+main :: ∀ eff. Eff (console :: CONSOLE, canvas :: CANVAS, dom :: DOM | eff) Unit
+main = do
+  ship <- model <$> controls
   maybeViewport <- viewport
   case maybeViewport of
       Just vp -> runSignal $ map (render vp) ship
